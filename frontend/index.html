@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Regex Forge · Compiler Laboratory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<div class="ambient ambient-a"></div><div class="ambient ambient-b"></div><div class="noise"></div>
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-glyph">λ</div>
+    <div><div class="brand-name">REGEX<span>FORGE</span></div><div class="brand-sub">compiler laboratory / automata engine</div></div>
+  </div>
+  <div class="file-tab"><span class="dot"></span> untitled.regex <b>×</b></div>
+  <div class="top-right">
+    <span class="engine-state"><i></i><span id="engineText">ENGINE READY</span></span>
+    <button id="presentationBtn" class="top-btn">◈ Presentation</button>
+    <button id="commandBtn" class="icon-btn" title="Command palette">⌘K</button>
+  </div>
+</header>
+
+<div class="app-shell">
+  <aside class="rail">
+    <div class="rail-label">PIPELINE</div>
+    <button class="stage-btn active" data-stage="overview"><span>01</span><strong>Overview</strong><em>⌂</em></button>
+    <button class="stage-btn" data-stage="tokens"><span>02</span><strong>Lexer</strong><em>λ</em></button>
+    <button class="stage-btn" data-stage="ast"><span>03</span><strong>Parser</strong><em>AST</em></button>
+    <button class="stage-btn" data-stage="nfa"><span>04</span><strong>Thompson</strong><em>NFA</em></button>
+    <button class="stage-btn" data-stage="dfa"><span>05</span><strong>Subset</strong><em>DFA</em></button>
+    <button class="stage-btn" data-stage="minimized"><span>06</span><strong>Optimize</strong><em>MIN</em></button>
+    <button class="stage-btn" data-stage="testing"><span>07</span><strong>Execute</strong><em>RUN</em></button>
+    <button class="stage-btn" data-stage="lab"><span>08</span><strong>Toolbox</strong><em>LAB</em></button>
+    <div class="rail-line"></div>
+    <button id="historyBtn" class="utility-btn"><span>↺</span> History</button>
+    <button id="shortcutsBtn" class="utility-btn"><span>⌘</span> Keys</button>
+  </aside>
+
+  <main class="workspace">
+    <div class="command-row">
+      <div class="breadcrumbs"><span>PROJECT</span><b>/</b><strong id="stageTitle">OVERVIEW</strong></div>
+      <div class="source-bar">
+        <span class="lambda">λ</span>
+        <input id="regex" value="(a|b)*abb" autocomplete="off" spellcheck="false" aria-label="Regular expression">
+        <button id="compileBtn" type="button"><span class="compile-dot"></span> BUILD <kbd>Ctrl ↵</kbd></button>
+      </div>
+    </div>
+    <div id="error" class="error hidden"></div>
+
+    <section class="stage active" id="overview">
+      <div class="stage-top">
+        <div><span class="eyebrow">COMPILER SESSION</span><h1>Regular Expression → Minimal DFA</h1><p>Trace the transformation from source syntax to an executable automaton.</p></div>
+        <div class="build-status"><span class="status-led"></span><b id="compileStatus">READY</b><small id="buildTime">no build yet</small></div>
+      </div>
+      <div class="source-strip">
+        <div class="source-caption"><span>01</span><b>SOURCE</b></div>
+        <code id="sourcePreview">(a|b)*abb</code>
+        <div class="source-actions"><button class="ghost-btn" id="copyJsonBtn">Copy JSON</button><button class="ghost-btn" id="saveSnapshotBtn">Save snapshot</button></div>
+      </div>
+      <div class="overview-grid">
+        <div class="architecture-panel panel-frame">
+          <div class="frame-head"><span>COMPILATION GRAPH</span><small>DATA FLOW</small></div>
+          <div class="pipeline-visual">
+            <div class="flow-node" data-go="tokens"><small>01</small><b>LEXER</b><span>chars → tokens</span></div><i>→</i>
+            <div class="flow-node" data-go="ast"><small>02</small><b>PARSER</b><span>tokens → AST</span></div><i>→</i>
+            <div class="flow-node" data-go="nfa"><small>03</small><b>THOMPSON</b><span>AST → ε-NFA</span></div><i>→</i>
+            <div class="flow-node" data-go="dfa"><small>04</small><b>SUBSET</b><span>ε-NFA → DFA</span></div><i>→</i>
+            <div class="flow-node" data-go="minimized"><small>05</small><b>MINIMIZER</b><span>DFA → minimal</span></div><i>→</i>
+            <div class="flow-node" data-go="testing"><small>06</small><b>MATCHER</b><span>input → decision</span></div>
+          </div>
+          <div class="architecture-foot"><span>IMPLEMENTATION</span><b>C++17</b><span>ALGORITHM</span><b>THOMPSON + SUBSET + PARTITION REFINEMENT</b></div>
+        </div>
+        <div class="metrics-panel panel-frame">
+          <div class="frame-head"><span>BUILD METRICS</span><small>LIVE</small></div>
+          <div class="metric"><span>TOKENS</span><b id="tokenCount">—</b><small>lexical units</small></div>
+          <div class="metric"><span>NFA STATES</span><b id="nfaStates">—</b><small>Thompson</small></div>
+          <div class="metric"><span>DFA STATES</span><b id="dfaStates">—</b><small>subset construction</small></div>
+          <div class="metric accent"><span>MINIMAL STATES</span><b id="minStates">—</b><small>optimized</small></div>
+          <div class="metric"><span>ALPHABET</span><b id="alphabetSize">—</b><small>symbols</small></div>
+        </div>
+      </div>
+      <div class="overview-bottom">
+        <div class="terminal panel-frame"><div class="frame-head"><span>BUILD CONSOLE</span><button id="clearLog">clear</button></div><div id="compilerLog" class="console"><div class="console-dim">$ waiting for build...</div></div></div>
+        <div class="syntax panel-frame"><div class="frame-head"><span>LANGUAGE</span><small>SUPPORTED</small></div><div class="syntax-grid"><div><b>|</b><span>union</span></div><div><b>·</b><span>concat</span></div><div><b>*</b><span>kleene star</span></div><div><b>+</b><span>one or more</span></div><div><b>?</b><span>optional</span></div><div><b>( )</b><span>grouping</span></div></div><div class="hint">Whitespace is rejected. Escape metacharacters with <code>\</code>.</div></div>
+      </div>
+    </section>
+
+    <section class="stage" id="tokens"><div class="stage-heading"><div><span class="eyebrow">STAGE 02 · LEXICAL ANALYSIS</span><h2>Token Stream</h2><p>The lexer classifies source characters and makes implicit concatenation explicit.</p></div><button class="next-btn" data-next="ast">PARSER →</button></div><div class="content-frame" id="tokensView">Build a regex to inspect the token stream.</div></section>
+
+    <section class="stage" id="ast"><div class="stage-heading"><div><span class="eyebrow">STAGE 03 · SYNTAX ANALYSIS</span><h2>Abstract Syntax Tree</h2><p>Recursive descent resolves precedence before automata construction.</p></div><div class="graph-tools"><button data-zoom="out">−</button><span id="astZoom">100%</span><button data-zoom="in">+</button><button data-zoom="reset">reset</button></div></div><div class="graph-frame"><div class="graph-meta"><span>IR / AST</span><small>click a node to inspect</small></div><div id="astView" class="graphbox">No AST yet.</div><div id="astInspector" class="floating-inspector hidden"></div></div></section>
+
+    <section class="stage" id="nfa"><div class="stage-heading"><div><span class="eyebrow">STAGE 04 · INTERMEDIATE REPRESENTATION</span><h2>Thompson ε-NFA</h2><p>Every regex operator is lowered into composable ε-NFA fragments.</p></div><div class="graph-tools"><button data-zoom="out">−</button><span id="nfaZoom">100%</span><button data-zoom="in">+</button><button data-zoom="reset">reset</button><button id="nfaAnimate" class="animate-btn">▶ build animation</button></div></div><div class="graph-frame"><div class="graph-meta"><span>AUTOMATON / NFA</span><small>states are interactive</small></div><div id="nfaView" class="graphbox">No NFA yet.</div><div id="nfaInspector" class="floating-inspector hidden"></div></div><div id="nfaTable" class="content-frame compact"></div></section>
+
+    <section class="stage" id="dfa"><div class="stage-heading"><div><span class="eyebrow">STAGE 05 · DETERMINIZATION</span><h2>Subset Construction</h2><p>Each DFA state represents an ε-closed subset of NFA states.</p></div><div class="graph-tools"><button data-zoom="out">−</button><span id="dfaZoom">100%</span><button data-zoom="in">+</button><button data-zoom="reset">reset</button></div></div><div class="graph-frame"><div class="graph-meta"><span>AUTOMATON / DFA</span><small>click a state for its subset</small></div><div id="dfaView" class="graphbox">No DFA yet.</div><div id="dfaInspector" class="floating-inspector hidden"></div></div><div id="dfaTable" class="content-frame compact"></div></section>
+
+    <section class="stage" id="minimized"><div class="stage-heading"><div><span class="eyebrow">STAGE 06 · OPTIMIZATION</span><h2>Minimal DFA</h2><p>Partition refinement merges states with equivalent future behaviour.</p></div><div class="reduction-badge"><span>REDUCTION</span><b id="reduction">—</b></div></div><div class="compare-line"><div><span>ORIGINAL DFA</span><b id="beforeStates">—</b></div><i>→</i><div><span>MINIMAL DFA</span><b id="afterStates">—</b></div><div class="compare-note">Equivalent states are merged without changing the accepted language.</div></div><div class="graph-frame"><div class="graph-meta"><span>AUTOMATON / MINIMAL DFA</span><small>optimized representation</small></div><div id="minView" class="graphbox">No minimized DFA yet.</div><div id="minInspector" class="floating-inspector hidden"></div></div><div id="minTable" class="content-frame compact"></div><div class="trace-frame panel-frame"><div class="frame-head"><span>PARTITION REFINEMENT</span><small>ROUND BY ROUND</small></div><div id="minTrace" class="partition-trace"></div></div></section>
+
+    <section class="stage" id="testing"><div class="stage-heading"><div><span class="eyebrow">STAGE 07 · EXECUTION</span><h2>Automaton Runner</h2><p>Execute input against the minimized DFA and replay the traversal.</p></div><div class="run-indicator"><i></i><span id="replayStatus">IDLE</span></div></div><div class="runner-frame panel-frame"><div class="runner-row"><span class="runner-label">INPUT</span><input id="testString" placeholder="try: aabb" spellcheck="false"><button id="testBtn" type="button" class="run-btn">RUN ▶</button><button id="stepBtn" type="button" class="small-btn">STEP</button><button id="resetRun" type="button" class="small-btn">RESET</button></div><div id="matchResult" class="result idle">Compile a regex first.</div><div class="replay-head"><span>EXECUTION REPLAY</span><small>step through transitions</small></div><div id="replayTrack" class="replay-track"><span class="console-dim">Run an input to generate the execution timeline.</span></div><div id="pathView" class="path"></div></div></section>
+    <section class="stage" id="lab">
+      <div class="stage-heading lab-heading">
+        <div><span class="eyebrow">STAGE 08 · EXPERIMENTAL TOOLBOX</span><h2>Compiler Lab</h2><p>Explore the generated language, compare expressions, inspect complexity, benchmark the engine, and generate a standalone matcher.</p></div>
+        <div class="lab-chip"><span>LAB</span><b>5 TOOLS</b></div>
+      </div>
+      <div class="lab-tabs">
+        <button class="lab-tab active" data-lab="analysis">Analysis</button>
+        <button class="lab-tab" data-lab="equivalence">Equivalence</button>
+        <button class="lab-tab" data-lab="explorer">Language Explorer</button>
+        <button class="lab-tab" data-lab="codegen">Code Generator</button>
+        <button class="lab-tab" data-lab="benchmark">Benchmark</button>
+      </div>
+      <div class="lab-pane active" id="lab-analysis">
+        <div class="analysis-hero panel-frame"><div><span class="eyebrow">STATIC ANALYSIS</span><h3 id="analysisTitle">Build a regex to analyze it.</h3><p id="analysisSummary">The toolbox reads the real compiler output. No values are hard-coded.</p></div><div class="analysis-score"><small>COMPLEXITY</small><b id="complexityScore">—</b></div></div>
+        <div class="analysis-grid" id="analysisGrid">
+          <div class="analysis-card"><span>EXPRESSION LENGTH</span><b id="aLength">—</b><small>source characters</small></div><div class="analysis-card"><span>OPERATORS</span><b id="aOperators">—</b><small>union / repeat / group</small></div><div class="analysis-card"><span>NESTING DEPTH</span><b id="aDepth">—</b><small>parenthesis depth</small></div><div class="analysis-card"><span>ALPHABET</span><b id="aAlphabet">—</b><small>distinct symbols</small></div><div class="analysis-card"><span>NFA → DFA</span><b id="aGrowth">—</b><small>state expansion</small></div><div class="analysis-card green"><span>DFA REDUCTION</span><b id="aReduction">—</b><small>after minimization</small></div>
+        </div>
+        <div class="analysis-detail panel-frame"><div class="frame-head"><span>LANGUAGE PROFILE</span><small>DERIVED FROM SOURCE</small></div><div id="analysisDetails" class="detail-grid"><div class="empty">Compile a regex to populate the profile.</div></div></div>
+      </div>
+      <div class="lab-pane" id="lab-equivalence">
+        <div class="tool-card panel-frame"><div class="tool-head"><div><span class="eyebrow">LANGUAGE EQUIVALENCE</span><h3>Do two expressions recognize the same language?</h3></div><button id="equivBtn" class="run-btn small-run" type="button">COMPARE</button></div><div class="dual-inputs"><label><span>REGEX A</span><input id="equivA" value="a(b|c)" spellcheck="false"></label><label><span>REGEX B</span><input id="equivB" value="ab|ac" spellcheck="false"></label></div><div id="equivResult" class="tool-result idle">Enter two expressions and compare their minimized DFAs.</div><div id="equivStats" class="compare-stats"></div></div>
+      </div>
+      <div class="lab-pane" id="lab-explorer">
+        <div class="tool-card panel-frame"><div class="tool-head"><div><span class="eyebrow">LANGUAGE EXPLORER</span><h3>Enumerate short strings</h3></div><div class="explorer-controls"><label>MAX LENGTH <select id="exploreLength"><option>2</option><option selected>3</option><option>4</option></select></label><button id="exploreBtn" class="run-btn small-run" type="button">EXPLORE</button></div></div><p class="tool-copy">Generate a small sample of the language accepted by the current minimized DFA.</p><div id="explorerSummary" class="explorer-summary">Compile a regex first.</div><div id="explorerResults" class="string-grid"></div></div>
+      </div>
+      <div class="lab-pane" id="lab-codegen">
+        <div class="tool-card panel-frame"><div class="tool-head"><div><span class="eyebrow">TARGET CODE</span><h3>Generate a standalone C++ matcher</h3></div><button id="codegenBtn" class="run-btn small-run" type="button">GENERATE</button></div><p class="tool-copy">The generated function is derived from the minimized DFA transitions produced by the C++ engine.</p><div class="code-shell"><div class="code-head"><span>generated_matcher.cpp</span><button id="copyCodeBtn" class="small-btn" type="button">COPY</button></div><pre id="generatedCode"><code>// Build a regex to generate target code.</code></pre></div></div>
+      </div>
+      <div class="lab-pane" id="lab-benchmark">
+        <div class="tool-card panel-frame"><div class="tool-head"><div><span class="eyebrow">ENGINE BENCHMARK</span><h3>Measure repeated compilation</h3></div><div class="explorer-controls"><label>RUNS <select id="benchRuns"><option>5</option><option selected>8</option><option>12</option></select></label><button id="benchmarkBtn" class="run-btn small-run" type="button">BENCHMARK</button></div></div><p class="tool-copy">Measures browser-to-engine compilation latency for the current expression. Results are indicative of this local machine.</p><div id="benchmarkResult" class="benchmark-result"><div><span>MIN</span><b>—</b></div><div><span>AVERAGE</span><b>—</b></div><div><span>MAX</span><b>—</b></div><div><span>RUNS</span><b>—</b></div></div><div id="benchmarkBars" class="benchmark-bars"></div></div>
+      </div>
+    </section>
+
+    <footer><span>REGEX FORGE</span> · Compiler Design Laboratory · C++17 engine · <button id="footerHelp">keyboard shortcuts</button> <span class="footer-sep">·</span> <button id="exportBtn">export graph</button></footer>
+  </main>
+</div>
+
+<div id="historyModal" class="modal hidden"><div class="modal-card"><div class="modal-head"><div><span class="eyebrow">SESSION MEMORY</span><h3>Recent builds</h3></div><button data-close="historyModal">×</button></div><div id="historyList" class="history-list"></div></div></div>
+<div id="commandModal" class="modal hidden"><div class="modal-card command-card"><div class="modal-head"><div><span class="eyebrow">COMMAND PALETTE</span><h3>What do you want to do?</h3></div><button data-close="commandModal">×</button></div><input id="commandSearch" placeholder="Search commands..." autocomplete="off"><div id="commandList" class="command-list"></div></div></div>
+<div id="shortcutModal" class="modal hidden"><div class="modal-card"><div class="modal-head"><div><span class="eyebrow">KEYBOARD</span><h3>Shortcuts</h3></div><button data-close="shortcutModal">×</button></div><div class="shortcut-list"><div><kbd>Ctrl</kbd><kbd>Enter</kbd><span>Build regex</span></div><div><kbd>Ctrl</kbd><kbd>K</kbd><span>Command palette</span></div><div><kbd>Space</kbd><span>Run input in Execute stage</span></div><div><kbd>Esc</kbd><span>Close overlay / presentation</span></div><div><kbd>1–7</kbd><span>Jump to pipeline stage</span></div></div></div></div>
+<script src="/js/app.js"></script>
+</body></html>

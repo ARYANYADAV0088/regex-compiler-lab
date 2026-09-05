@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.pyc
+cpp/regex_engine
+cpp/regex_engine.exe
+.vscode/

@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.16)
+project(regex_compiler LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+file(GLOB SOURCES src/*.cpp)
+add_executable(regex_engine ${SOURCES})
+target_include_directories(regex_engine PRIVATE include)
