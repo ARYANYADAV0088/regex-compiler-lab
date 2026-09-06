@@ -4,6 +4,11 @@
 
 A complete educational regular-expression compiler and automata workbench implemented with a C++17 compiler core, Flask API, and interactive HTML/CSS/JavaScript frontend.
 
+
+## 🚀 Live Demo
+
+**[Open Regex Compiler Lab](https://regex-compiler-lab.onrender.com)**
+
 ## Full pipeline
 ```text
 Regex
