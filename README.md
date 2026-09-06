@@ -52,6 +52,19 @@ String Execution + Traversal
 - Browser-based interactive UI
 - Automated regression tests
 
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Compiler Engine | C++17 |
+| Lexical & Syntax Analysis | Custom Lexer + Recursive-Descent Parser |
+| Automata | Thompson NFA + Subset Construction DFA |
+| Optimization | DFA Minimization |
+| Backend | Python + Flask |
+| Frontend | HTML5 + CSS3 + JavaScript |
+| Visualization | SVG |
+| Deployment | Render + Gunicorn |
+
 ## Supported syntax
 | Syntax | Meaning |
 |---|---|
